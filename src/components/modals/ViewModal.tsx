@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import { X, Eye, EyeOff, Copy, Check, ExternalLink } from 'lucide-react';
-import type { Credential } from '../../types';
-import { TYPE_COLORS, TYPE_LABELS } from '../../utils/typeColors';
-import { useToast } from '../../contexts/ToastContext';
+import { useState } from "react";
+import { X, Eye, EyeOff, Copy, Check, ExternalLink } from "lucide-react";
+import { TYPE_COLORS, TYPE_LABELS } from "../../utils/typeColors";
+import { useToast } from "../../contexts/ToastContext";
 
 interface Props {
-  credential: Credential;
+  credential: any;
   onClose: () => void;
   onEdit: () => void;
 }
@@ -17,7 +16,7 @@ function CopyButton({ value }: { value: string }) {
   const handleCopy = () => {
     navigator.clipboard.writeText(value).then(() => {
       setCopied(true);
-      showToast('Copied to clipboard!', 'info');
+      showToast("Copied to clipboard!", "info");
       setTimeout(() => setCopied(false), 1500);
     });
   };
@@ -28,7 +27,11 @@ function CopyButton({ value }: { value: string }) {
       className="text-gray-500 hover:text-violet-400 transition-colors p-1 rounded"
       title="Copy"
     >
-      {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+      {copied ? (
+        <Check size={14} className="text-green-400" />
+      ) : (
+        <Copy size={14} />
+      )}
     </button>
   );
 }
@@ -47,13 +50,15 @@ function MaskedField({
 
   return (
     <div>
-      <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">
+        {label}
+      </p>
       <div className="flex items-center gap-2">
         <span className="text-white text-sm flex-1 break-all font-mono">
-          {visible ? value : '••••••••'}
+          {visible ? value : "••••••••"}
         </span>
         <button
-          onClick={() => setVisible(v => !v)}
+          onClick={() => setVisible((v) => !v)}
           className="text-gray-500 hover:text-gray-300 transition-colors p-1 rounded flex-shrink-0"
         >
           {visible ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -78,7 +83,9 @@ function PlainField({
   if (!value) return null;
   return (
     <div>
-      <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">
+        {label}
+      </p>
       <div className="flex items-center gap-2">
         <span className="text-white text-sm flex-1 break-all">{value}</span>
         {url && (
@@ -116,7 +123,9 @@ export default function ViewModal({ credential, onClose, onEdit }: Props) {
               </span>
             </div>
             <div>
-              <p className="text-white font-semibold">{credential.platformName}</p>
+              <p className="text-white font-semibold">
+                {credential.platformName}
+              </p>
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.badge} ${colors.badgeText}`}
               >
@@ -135,17 +144,36 @@ export default function ViewModal({ credential, onClose, onEdit }: Props) {
         {/* Body */}
         <div className="p-5 space-y-4">
           <PlainField label="Platform Name" value={credential.platformName} />
-          <PlainField label="Website URL" value={credential.websiteUrl ?? ''} url />
-          <PlainField label="Email" value={credential.email ?? ''} copyable />
-          <PlainField label="Username" value={credential.username ?? ''} copyable />
-          <MaskedField label="Password" value={credential.password ?? ''} />
-          <MaskedField label="PIN Number" value={credential.pinNumber ?? ''} />
-          <PlainField label="Account Number" value={credential.accountNumber ?? ''} copyable />
-          <MaskedField label="Seed Phrase / Recovery Keys" value={credential.seedPhrase ?? ''} />
+          <PlainField
+            label="Website URL"
+            value={credential.websiteUrl ?? ""}
+            url
+          />
+          <PlainField label="Email" value={credential.email ?? ""} copyable />
+          <PlainField
+            label="Username"
+            value={credential.username ?? ""}
+            copyable
+          />
+          <MaskedField label="Password" value={credential.password ?? ""} />
+          <MaskedField label="PIN Number" value={credential.pinNumber ?? ""} />
+          <PlainField
+            label="Account Number"
+            value={credential.accountNumber ?? ""}
+            copyable
+          />
+          <MaskedField
+            label="Seed Phrase / Recovery Keys"
+            value={credential.seedPhrase ?? ""}
+          />
           {credential.notes && (
             <div>
-              <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Notes</p>
-              <p className="text-white text-sm whitespace-pre-wrap">{credential.notes}</p>
+              <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">
+                Notes
+              </p>
+              <p className="text-white text-sm whitespace-pre-wrap">
+                {credential.notes}
+              </p>
             </div>
           )}
         </div>

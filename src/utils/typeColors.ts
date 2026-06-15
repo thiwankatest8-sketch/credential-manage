@@ -1,7 +1,5 @@
-import type { CredentialType } from '../types';
-
 export const TYPE_COLORS: Record<
-  CredentialType,
+  string,
   { bg: string; text: string; border: string; badge: string; badgeText: string }
 > = {
   BANK_APP: {
@@ -69,7 +67,7 @@ export const TYPE_COLORS: Record<
   },
 };
 
-export const TYPE_LABELS: Record<CredentialType, string> = {
+export const TYPE_LABELS: Record<string, string> = {
   BANK_APP: 'Bank App',
   SOCIAL_MEDIA: 'Social Media',
   EMAIL: 'Email Account',

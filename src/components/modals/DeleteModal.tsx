@@ -1,21 +1,32 @@
+import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
-import type { Credential } from '../../types';
-import { useCredentials } from '../../contexts/CredentialsContext';
 import { useToast } from '../../contexts/ToastContext';
+import {deleteCredentialByIdAPI} from '../../api';
 
 interface Props {
-  credential: Credential;
+  credential: any;
   onClose: () => void;
+  changeCount: any;
 }
 
-export default function DeleteModal({ credential, onClose }: Props) {
-  const { deleteCredential } = useCredentials();
+export default function DeleteModal({ credential, onClose, changeCount }: Props) {
   const { showToast } = useToast();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleDelete = () => {
-    deleteCredential(credential.id);
-    showToast('Credential deleted', 'error');
-    onClose();
+  const handleDelete = async() => {
+    setLoading(true);
+    try{
+        await deleteCredentialByIdAPI(credential.id);
+        changeCount();
+        showToast('Credential deleted', 'success');
+        setLoading(false);
+        onClose();
+    }catch(error){
+        console.error('Delete error:', error);
+        showToast('Failed to delete credential', 'error');
+        setLoading(false);
+    }
+  
   };
 
   return (
@@ -36,13 +47,22 @@ export default function DeleteModal({ credential, onClose }: Props) {
         <div className="flex gap-3">
           <button
             onClick={handleDelete}
-            className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg px-4 py-2.5 transition-colors duration-200 min-h-[44px]"
+            disabled={loading}
+            className="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-lg px-4 py-2.5 transition-colors duration-200 min-h-[44px] flex items-center justify-center gap-2"
           >
-            Delete
+            {loading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Deleting...
+              </>
+            ) : (
+              'Delete'
+            )}
           </button>
           <button
             onClick={onClose}
-            className="flex-1 border border-gray-700 text-gray-300 hover:bg-gray-800 font-semibold rounded-lg px-4 py-2.5 transition-colors duration-200 min-h-[44px]"
+            disabled={loading}
+            className="flex-1 border border-gray-700 text-gray-300 hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed font-semibold rounded-lg px-4 py-2.5 transition-colors duration-200 min-h-[44px]"
           >
             Cancel
           </button>

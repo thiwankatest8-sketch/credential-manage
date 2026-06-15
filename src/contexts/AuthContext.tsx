@@ -1,75 +1,38 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-import type { User } from '../types';
 
 interface AuthContextValue {
-  user: User | null;
+  user: any | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => boolean;
-  signup: (firstName: string, lastName: string, email: string, password: string) => void;
+  setAuthenticatedUser: (user: any) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const DEMO_CREDENTIALS = {
-  email: 'demo@vaultnest.com',
-  password: 'Demo@1234',
-  firstName: 'Demo',
-  lastName: 'User',
-  id: 'demo-user',
-};
+const AUTH_USER_STORAGE_KEY = 'vaultnest-auth-user';
 
-// In-memory user store for signups during the session
-const registeredUsers: Array<User & { password: string }> = [];
+function getStoredUser() {
+  const storedUser = sessionStorage.getItem(AUTH_USER_STORAGE_KEY);
+  return storedUser ? JSON.parse(storedUser) : null;
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(() => getStoredUser());
 
-  const login = (email: string, password: string): boolean => {
-    const normalizedEmail = email.toLowerCase().trim();
-
-    if (
-      normalizedEmail === DEMO_CREDENTIALS.email &&
-      password === DEMO_CREDENTIALS.password
-    ) {
-      setUser({
-        id: DEMO_CREDENTIALS.id,
-        firstName: DEMO_CREDENTIALS.firstName,
-        lastName: DEMO_CREDENTIALS.lastName,
-        email: DEMO_CREDENTIALS.email,
-      });
-      return true;
-    }
-
-    const found = registeredUsers.find(
-      u => u.email === normalizedEmail && u.password === password
-    );
-    if (found) {
-      setUser({ id: found.id, firstName: found.firstName, lastName: found.lastName, email: found.email });
-      return true;
-    }
-
-    return false;
-  };
-
-  const signup = (firstName: string, lastName: string, email: string, password: string) => {
-    const newUser: User & { password: string } = {
-      id: `user-${Date.now()}`,
-      firstName,
-      lastName,
-      email: email.toLowerCase().trim(),
-      password,
-    };
-    registeredUsers.push(newUser);
-    setUser({ id: newUser.id, firstName, lastName, email: newUser.email });
+  const setAuthenticatedUser = (authenticatedUser: any) => {
+    setUser(authenticatedUser);
+    sessionStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(authenticatedUser));
   };
 
   const logout = () => {
+    sessionStorage.clear();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, isAuthenticated: !!user, setAuthenticatedUser, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

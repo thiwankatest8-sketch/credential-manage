@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Shield } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { signupUser } from '../api';
+import { useToast } from '../contexts/ToastContext';
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { showToast } = useToast();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -30,20 +31,33 @@ export default function SignupPage() {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
     }
+
     setErrors({});
     setLoading(true);
-    setTimeout(() => {
-      signup(firstName.trim(), lastName.trim(), email.trim(), password);
+
+    try {
+      const response = await signupUser({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      showToast(response.message || 'Account created successfully', 'success');
       setLoading(false);
-      navigate('/dashboard');
-    }, 400);
+      navigate('/login');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Signup failed';
+      showToast(message, 'error');
+      setLoading(false);
+    }
   };
 
   return (

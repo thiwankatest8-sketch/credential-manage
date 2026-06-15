@@ -1,6 +1,6 @@
-import { Shield, LayoutDashboard, LogOut, X } from 'lucide-react';
+import { Shield, LayoutDashboard, LogOut, X, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   mobileOpen: boolean;
@@ -10,6 +10,7 @@ interface SidebarProps {
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const initials = user
     ? `${user.firstName[0] ?? ''}${user.lastName[0] ?? ''}`.toUpperCase()
@@ -19,6 +20,24 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     logout();
     navigate('/login');
   };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    onClose?.();
+  };
+
+  const menuItems = [
+    {
+      label: 'Dashboard',
+      path: '/dashboard',
+      icon: LayoutDashboard,
+    },
+    {
+      label: 'Security',
+      path: '/security',
+      icon: ShieldCheck,
+    },
+  ];
 
   return (
     <div className="flex flex-col h-full">
@@ -49,13 +68,25 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Navigation */}
       <nav className="flex-1 py-4">
         <div className="px-3">
-          <button
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-r-lg text-violet-400 bg-violet-600/20 border-l-2 border-violet-500 transition-all duration-200"
-            onClick={onClose}
-          >
-            <LayoutDashboard size={18} />
-            <span className="font-medium text-sm">Dashboard</span>
-          </button>
+          {menuItems.map(item => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+
+            return (
+              <button
+                key={item.path}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-r-lg border-l-2 transition-all duration-200 ${
+                  isActive
+                    ? 'text-violet-400 bg-violet-600/20 border-violet-500'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-800/80 border-transparent'
+                }`}
+                onClick={() => handleNavigate(item.path)}
+              >
+                <Icon size={18} />
+                <span className="font-medium text-sm">{item.label}</span>
+              </button>
+            );
+          })}
         </div>
       </nav>
 
